@@ -103,6 +103,14 @@ format: ## Format code with black
 	@echo "Formatting code..."
 	@$(PYTHON_VENV) -m black aws_chatbot/ 2>/dev/null || echo "black not installed, run: pip install black"
 
+test: ## Run tests
+	@if [ ! -d "$(VENV)" ]; then \
+			echo "Virtual environment not found. Running 'make install' first..."; \
+			$(MAKE) install; \
+	fi
+	@echo "Running tests..."
+	@$(PYTHON_VENV) -m pytest tests/
+
 check-aws: ## Check AWS credentials configuration
 	@echo "Checking AWS configuration..."
 	@aws sts get-caller-identity >/dev/null 2>&1 && \
