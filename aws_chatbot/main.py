@@ -5,26 +5,23 @@ import sys
 from dotenv import load_dotenv
 
 from aws_chatbot.chatbot import AWSChatbot
+from aws_chatbot.prompts import INTERACTIVE_PROMPT
+
+EXIT_COMMANDS = ["quit", "exit"]
 
 
-def main():
+def load_env_and_args():
     load_dotenv()
 
-    parser = argparse.ArgumentParser(
-        description="AWS Chatbot - Query AWS resources using natural language"
-    )
+    parser = argparse.ArgumentParser(description="AWS Chatbot - Query AWS resources using natural language")
     parser.add_argument(
         "--format",
         choices=["natural", "json", "table"],
         default="natural",
         help="Output format (default: natural)",
     )
-    parser.add_argument(
-        "--verbose", action="store_true", help="Show detailed execution steps"
-    )
-    parser.add_argument(
-        "query", nargs="?", help="Query to execute (interactive mode if not provided)"
-    )
+    parser.add_argument("--verbose", action="store_true", help="Show detailed execution steps")
+    parser.add_argument("query", nargs="?", help="Query to execute (interactive mode if not provided)")
 
     args = parser.parse_args()
 
@@ -34,6 +31,11 @@ def main():
             "Error: OPENAI_API_KEY environment variable not set. Set it in the .env file or export it using: export OPENAI_API_KEY='your-key-here'"
         )
         sys.exit(1)
+    return args, openai_key
+
+
+def main():
+    args, openai_key = load_env_and_args()
 
     try:
         chatbot = AWSChatbot(openai_key, verbose=args.verbose)
@@ -45,15 +47,13 @@ def main():
         result = chatbot.query(args.query, args.format)
         print(result)
     else:
-        print("AWS Chatbot - Interactive Mode")
-        print("Type 'exit' or 'quit' to leave")
-        print("-" * 40)
+        print(INTERACTIVE_PROMPT.format(exit_commands=" or ".join(x for x in EXIT_COMMANDS), spacer="-" * 40))
 
         while True:
             try:
                 query = input("\nQuery: ").strip()
 
-                if query.lower() in ["exit", "quit"]:
+                if query.lower() in EXIT_COMMANDS:
                     print("Goodbye!")
                     break
 

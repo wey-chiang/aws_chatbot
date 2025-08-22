@@ -42,3 +42,7 @@ except Exception as e:
 ```
 
 After receiving the execution results, interpret them in a user-friendly way."""
+
+INTERACTIVE_PROMPT = """AWS Chatbot - Interactive Mode
+Type {exit_commands} to leave
+{spacer}"""
